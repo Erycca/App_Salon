@@ -1,0 +1,3 @@
+node_modules/
+salon-management/backend/salon_management.sqlite
+.env

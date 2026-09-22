@@ -1,0 +1,22 @@
+{
+  "short_name": "SalonManager",
+  "name": "Salon Management - Gestão Comercial",
+  "description": "Aplicativo para controle de caixa, atendimentos, estoque e fiados em salões de beleza e manicures.",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#880e4f",
+  "theme_color": "#d81b60",
+  "display": "standalone",
+  "orientation": "portrait"
+}

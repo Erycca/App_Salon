@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Salon Management - App de Gestão Comercial</title>
+
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#d81b60">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navegação -->
+    <aside class="sidebar">
+      <div class="logo">
+        <i class="fa-solid fa-sparkles"></i>
+        <span>Salon Manager</span>
+      </div>
+      <nav class="nav-menu">
+        <button class="nav-btn active" onclick="switchTab('atendimento')">
+          <i class="fa-solid fa-cash-register"></i> Atendimento
+        </button>
+        <button class="nav-btn" onclick="switchTab('fiados')">
+          <i class="fa-solid fa-book-bookmark"></i> Fiados / Débitos
+        </button>
+        <button class="nav-btn" onclick="switchTab('clientes')">
+          <i class="fa-solid fa-users"></i> Clientes
+        </button>
+        <button class="nav-btn" onclick="switchTab('catalogo')">
+          <i class="fa-solid fa-tags"></i> Serviços e Produtos
+        </button>
+        <button class="nav-btn" onclick="switchTab('relatorios')">
+          <i class="fa-solid fa-chart-pie"></i> Relatórios
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+      <!-- ABA 1: REGISTRAR ATENDIMENTO -->
+      <section id="tab-atendimento" class="tab-content active">
+        <h2><i class="fa-solid fa-receipt"></i> Novo Atendimento / Comanda</h2>
+        <div class="grid-2">
+          <!-- Lado Esquerdo: Seleção de Itens -->
+          <div class="card">
+            <h3>Selecione os Serviços/Produtos</h3>
+            <div id="lista-catalogo-atendimento" class="grid-cards">
+              <!-- Itens do catálogo inseridos dinamicamente -->
+            </div>
+          </div>
+
+          <!-- Lado Direito: Resumo da Comanda -->
+          <div class="card checkout-card">
+            <h3>Comanda Atual</h3>
+            <div class="form-group">
+              <label>Cliente:</label>
+              <select id="select-cliente-atendimento" class="form-control">
+                <option value="">-- Atendimento Avulso / Não identificado --</option>
+              </select>
+            </div>
+
+            <div class="cart-items" id="carrinho-itens">
+              <p class="empty-msg">Nenhum item adicionado à comanda.</p>
+            </div>
+
+            <div class="total-box">
+              <span>Total:</span>
+              <strong id="total-atendimento">R$ 0,00</strong>
+            </div>
+
+            <h4>Forma de Pagamento</h4>
+            <div class="payment-methods">
+              <label><input type="radio" name="pagamento" value="PIX" checked> <i class="fa-brands fa-pix"></i> Pix</label>
+              <label><input type="radio" name="pagamento" value="CARTAO"> <i class="fa-solid fa-credit-card"></i> Cartão</label>
+              <label><input type="radio" name="pagamento" value="DINHEIRO"> <i class="fa-solid fa-money-bill-wave"></i> Dinheiro</label>
+              <label><input type="radio" name="pagamento" value="FIADO"> <i class="fa-solid fa-handshake-angle"></i> Pendurar (Fiado)</label>
+            </div>
+
+            <button class="btn btn-primary btn-block" onclick="finalizarAtendimento()">
+              <i class="fa-solid fa-check"></i> Finalizar e Registrar
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 2: DÉBITOS E FIADOS -->
+      <section id="tab-fiados" class="tab-content">
+        <h2><i class="fa-solid fa-book-bookmark"></i> Gestão de Contas a Receber (Fiado)</h2>
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Telefone</th>
+                <th>Valor Devido</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabela-fiados">
+              <!-- Clientes devedores inseridos via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ABA 3: CLIENTES -->
+      <section id="tab-clientes" class="tab-content">
+        <h2><i class="fa-solid fa-users"></i> Cadastro de Clientes</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Cadastrar Novo Cliente</h3>
+            <form id="form-cliente" onsubmit="cadastrarCliente(event)">
+              <div class="form-group">
+                <label>Nome Completo:</label>
+                <input type="text" id="cli-nome" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Telefone / WhatsApp:</label>
+                <input type="text" id="cli-telefone" class="form-control" placeholder="(11) 99999-9999">
+              </div>
+              <div class="form-group">
+                <label>Limite de Crédito para Fiado (R$):</label>
+                <input type="number" id="cli-limite" class="form-control" step="0.01" value="100.00">
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-user-plus"></i> Salvar Cliente</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Clientes Cadastrados</h3>
+            <ul id="lista-clientes" class="item-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 4: CATÁLOGO -->
+      <section id="tab-catalogo" class="tab-content">
+        <h2><i class="fa-solid fa-tags"></i> Serviços e Insumos / Produtos</h2>
+        <div class="grid-2">
+          <div class="card">
+            <h3>Novo Serviço ou Produto</h3>
+            <form id="form-catalogo" onsubmit="cadastrarItemCatalogo(event)">
+              <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" id="cat-nome" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Tipo:</label>
+                <select id="cat-tipo" class="form-control">
+                  <option value="SERVICO">Serviço (Pé, Mão, Cabelo, etc.)</option>
+                  <option value="PRODUTO">Produto / Insumo (Esmalte, Óleo, etc.)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Preço Padrão (R$):</label>
+                <input type="number" id="cat-preco" class="form-control" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label>Estoque Inicial (Se for Produto):</label>
+                <input type="number" id="cat-estoque" class="form-control" value="0">
+              </div>
+              <button type="submit" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Cadastrar Item</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Itens Cadastrados</h3>
+            <ul id="lista-catalogo" class="item-list"></ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ABA 5: RELATÓRIOS -->
+      <section id="tab-relatorios" class="tab-content">
+        <h2><i class="fa-solid fa-chart-pie"></i> Resumo Financeiro</h2>
+      <div class="card">
+        <h3>Exportar Documentos</h3>
+        <a href="http://localhost:3000/api/relatorios/fiados/excel" class="btn btn-primary" target="_blank">
+          <i class="fa-solid fa-file-excel"></i> Baixar Relatório de Fiados (.XLSX)
+        </a>
+        <a href="http://localhost:3000/api/relatorios/faturamento/pdf" class="btn btn-primary" target="_blank" style="margin-left: 10px;">
+          <i class="fa-solid fa-file-pdf"></i> Baixar Faturamento (.PDF)
+        </a>
+      </div>
+
+        <div class="grid-cards" id="cards-faturamento">
+          <!-- Cards de faturamento inseridos via JS -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/app.js"></script>
+
+  <!-- Registro do Service Worker (Adicionar antes do </body>) -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => console.log('Service Worker registrado com sucesso:', reg.scope))
+          .catch((err) => console.error('Falha ao registrar Service Worker:', err));
+      });
+    }
+  </script>
+</body>
+</html>
